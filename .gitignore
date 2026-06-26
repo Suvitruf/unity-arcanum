@@ -1,0 +1,31 @@
+# --- Unity generated folders ---
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# --- IDE / build artifacts ---
+.vs/
+.idea/
+*.csproj
+*.sln
+*.unityproj
+*.user
+*.booproj
+*.pidb
+*.suo
+*.tmp
+
+# --- OS noise ---
+.DS_Store
+Thumbs.db
+
+# --- Unity crash / asset import logs ---
+sysinfo.txt
+crashlytics-build.properties
+/[Aa]ssets/[Aa]ssetStoreTools*
