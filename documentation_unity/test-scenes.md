@@ -45,3 +45,17 @@ turntable speed, the **armour**/**weapon** codes (e.g. armour `0` = the base "UW
 most clearly), pixels-per-unit, and the grid spacing.
 
 Open the scene, make sure your data is configured (above), and press Play.
+
+### Tile gallery — `Scenes/TestTiles`
+
+Driver: **`TileGallery`**. Reads the tile-name table (`art/tile/tilename.mes`), takes the unique terrain codes
+across its four buckets (outdoor/indoor × flippable/non-flippable), and shows each terrain's **base tile** as a
+labelled grid. It's a quick way to confirm that every terrain type **resolves and decodes**, and to spot any that
+are missing a base tile — the Console logs `TileGallery: N terrain types (M without a base tile)`, and a missing
+one appears as an empty labelled cell.
+
+A "base tile" is the non-blended, full tile of a terrain (engine `<name>bse0a` — edge 0, variant a); the blended
+edge/corner variants that stitch two terrains together aren't shown here. Inspector knobs (all `[SerializeField]
+private`): the archive to read, the column count, cell size, and pixels-per-unit.
+
+As with the character gallery, configure your data and press Play.
