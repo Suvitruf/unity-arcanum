@@ -1,0 +1,16 @@
+{
+    "name": "Arcanum.Runtime",
+    "rootNamespace": "Arcanum.Runtime",
+    "references": [
+        "Arcanum.Formats"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
