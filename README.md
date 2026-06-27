@@ -110,7 +110,7 @@ remain the property of their respective owners.
 ## 💬 Support and community
 
 - **Join on Discord** — chat about the project, follow progress, ask questions, share ideas, or help
-  test: **[discord.gg/gvj4MdgASx](https://discord.gg/gvj4MdgASx)**. Everyone curious about Arcanum or the
+  test: **[Discord](https://discord.gg/3aDtVmNRMY)**. Everyone curious about Arcanum or the
   reimplementation is welcome.
 - **Support development** — this is a free, non-commercial labour of love built in my spare time. If you'd
   like to help it move along faster, you can support me on
