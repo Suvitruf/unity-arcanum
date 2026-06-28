@@ -300,6 +300,38 @@ The flag suffix is a run of single letters (engine `TF_*`, `a_name.c:8`):
 So a plain grass tile is just `name + sound`; a deep-water tile carries `/s`, an impassable mountain `/b`,
 and an icy patch `/i`. Note that `f` sets **both** BLOCK and FLYABLE, not FLYABLE alone.
 
+### Blend tile edges & mirroring
+
+Where two terrains meet, a tile is a **blend** — part terrain A, part terrain B — and a **4-bit edge code**
+(0–15) says which of the diamond's four corners belong to each terrain. The filename concatenates the two
+terrain codes, an edge character and a variant letter: `art\tile\<A><B><edge><variant>.art`
+(`build_tile_file_name`, `a_name.c` `0x4EAF70`). A fixed ordering keeps one canonical file per pair (the
+lower-ordered terrain goes first; otherwise the names swap and the edge becomes `15 − edge`), and the edge
+index maps to its filename character through the constant string `06b489237ea5dc10`. Edges `0` and `15` are
+the degenerate "all one terrain" cases and resolve to that terrain's base tile (`<name>bse…`).
+
+**The game ships only half the edge art.** Four of the sixteen edge patterns — **2, 9, 12, 13** — have *no
+file of their own*. Each is the exact **horizontal mirror** of one of **8, 3, 6, 7**, so the game stores only
+the latter and draws it flipped left-to-right to produce the former — halving the blend art for those edges.
+The pairing comes from two 16-entry remap tables in the art library (`tig art.c` `dword_5BE880` /
+`dword_5BE8C0`):
+
+| "Flipped" edge (no file) | Canonical partner (has file) |
+|---|---|
+| 2 | 8 |
+| 9 | 3 |
+| 12 | 6 |
+| 13 | 7 |
+
+A mirrored tile is marked with a flip flag in its art-id; the engine resolves the **canonical** partner's
+filename and mirrors it at draw time. Every other edge ships its own file and draws as-is.
+
+> **Gotcha.** A sector routinely stores tiles whose displayed edge is one of `2/9/12/13`. Build the filename
+> straight from that edge and you ask for a file that doesn't exist — you get a hole (a flat base tile where a
+> blend belongs, and a hard seam at the terrain boundary). You must map the edge to its canonical partner,
+> resolve *that* file, and draw it **horizontally mirrored**, which reproduces the original edge exactly.
+> These mirrored edges are common — on the order of 6–12% of an outdoor sector's tiles.
+
 ---
 
 ## Drawing the world
