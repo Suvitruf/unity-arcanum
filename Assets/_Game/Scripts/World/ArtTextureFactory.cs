@@ -9,15 +9,11 @@ namespace Arcanum.Runtime.Art
     /// and <see cref="Sprite"/> objects. ART stores rows top-down with palette index 0
     /// as the transparent colour key; Unity textures are bottom-up, so rows are flipped
     /// here and index-0 pixels are written fully transparent.
+    /// The original world tiles are drawn on isometric pixel grid (78×40).
     /// </summary>
     public static class ArtTextureFactory
     {
-        public const int TransparentIndex = 0;
-
-        /// <summary>The original world tiles are drawn on this isometric pixel grid (78×40).</summary>
-        public const int TilePixelWidth = 78;
-
-        public const int TilePixelHeight = 40;
+        private const int TransparentIndex = 0;
 
         /// <summary>When set, <see cref="CreateSprite"/> packs frames into this shared atlas instead of giving
         /// each sprite its own texture — so sprites batch (sorting unchanged). Null = one texture per sprite.</summary>
@@ -70,11 +66,13 @@ namespace Arcanum.Runtime.Art
         /// <paramref name="pixelsPerUnit"/>, and the pivot is placed on the frame's
         /// hotspot so animations and world placement stay registered.
         /// </summary>
-        public static Sprite CreateSprite(ArtFrame frame, ArtPalette palette, float pixelsPerUnit = 100f,
-                                          Vector2? pivotOverride = null, bool mirrorX = false)
+        public static Sprite CreateSprite(ArtFrame frame, ArtPalette palette, float pixelsPerUnit = 100f, Vector2? pivotOverride = null, bool mirrorX = false)
         {
-            if (frame == null) throw new ArgumentNullException(nameof(frame));
-            if (palette == null) throw new ArgumentNullException(nameof(palette));
+            if (frame == null)
+                throw new ArgumentNullException(nameof(frame));
+
+            if (palette == null)
+                throw new ArgumentNullException(nameof(palette));
 
             int width = Mathf.Max(frame.Width, 1);
             int height = Mathf.Max(frame.Height, 1);

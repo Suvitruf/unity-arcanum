@@ -59,3 +59,42 @@ edge/corner variants that stitch two terrains together aren't shown here. Inspec
 private`): the archive to read, the column count, cell size, and pixels-per-unit.
 
 As with the character gallery, configure your data and press Play.
+
+> The gallery shows each terrain's base tile in isolation. To see **real, blended terrain** assembled the way the
+> game draws it, use the terrain demo below — it runs the actual in-game generator over a real sector.
+
+### Terrain / sector demo — `Scenes/TestTerrain`
+
+Driver: **`TileMapDemo`**. Loads one real Arcanum **sector** (a 64×64 patch of the world, a `.sec` file from the
+module archive) and renders its ground layer through **`TileMapRenderer`** — the *exact* terrain generator the full
+game uses. So unlike the gallery, this exercises the whole path end-to-end: tile art-ids resolved through the
+blend/variant routing, the mirror-edge tiles (the flip edges that reuse a canonical tile drawn horizontally
+swapped), facade tiles (large buildings stored in the tile layer), and the **batched mesh** — all 4096 tiles packed
+into one atlas + one draw call, depth-ordered so the diamond edges overlap correctly. Drag to pan, scroll to zoom;
+the Console logs the tile count and any blend misses.
+
+![Switching sectors live with the Sector Browser](https://cdn.arcanum.aapanasik.com/github/test-scene-terrain.gif)
+
+This is the test scene's real purpose: it proves the extracted generator works in isolation, and it's the
+self-contained slice you can ship to the public repo (it needs only `Arcanum.Formats` + `Arcanum.World`, no
+gameplay code — see [Terrain rendering](terrain-rendering.md)). Inspector knobs (all `[SerializeField] private`):
+the two source archives, the sector path, the **Batch Terrain** toggle (off = one `SpriteRenderer` per tile, the
+heavy fallback), pixels-per-unit, and the background colour.
+
+Configure your data and press Play.
+
+#### Switching sectors — the Sector Browser
+
+You rarely want to hand-type sector paths. The `TileMapDemo` inspector has a **Browse sectors…** button that opens
+a **Sector Browser** window (as shown above):
+
+- It enumerates every `maps/<name>/<id>.sec` in the demo's module archive and lists them with a **search** box —
+  type part of a map name to filter (e.g. `bates`, `shrouded`). **Refresh** re-scans.
+- Each row has a **Load** button; the currently rendered sector is highlighted and marked `◀ current`.
+- In **Play mode**, Load renders the picked sector immediately and re-frames the camera — so you can walk the whole
+  world's terrain a sector at a time without leaving Play. In **edit mode**, Load just writes the choice to the
+  **Sector Path** field (it renders on the next Play).
+
+Under the hood the archives are mounted once and the resolvers/sprite caches are reused, so switching sectors is
+fast. The browser is editor-only (`TileMapDemoEditor` + `SectorBrowserWindow` in the `Arcanum.Editor` assembly); the
+runtime `LoadSector(path)` method it calls is public, so a build could drive it too.

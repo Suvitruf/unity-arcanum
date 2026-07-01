@@ -14,7 +14,7 @@ namespace Arcanum.Runtime
     public static class GameDataLocator
     {
         /// <summary>Resources name of the <see cref="GameDataConfig"/> asset.</summary>
-        public const string ConfigResourceName = "GameDataConfig";
+        private const string ConfigResourceName = "GameDataConfig";
 
         private static GameDataConfig _config;
         private static bool _configLoaded;
@@ -34,7 +34,7 @@ namespace Arcanum.Runtime
         }
 
         /// <summary>Candidate directories searched in order; first hit wins.</summary>
-        public static IEnumerable<string> CandidateRoots()
+        private static IEnumerable<string> CandidateRoots()
         {
             GameDataConfig config = Config;
 

@@ -6,10 +6,11 @@ namespace Arcanum.Formats.Tiles
     /// <summary>
     /// Turns a sector's packed tile <c>art_id</c> into an <c>art/tile/*.art</c>
     /// virtual path. Ports <c>a_name_tile_aid_to_fname</c> + <c>build_tile_file_name</c>
-    /// from arcanum-ce <c>a_name.c</c>. Validated against the shipped game: 99.6% of a
-    /// real sector's 4096 tiles resolve to files that exist in <c>arcanum2.dat</c>;
-    /// the remainder are flippable blend tiles the engine mirrors at runtime, for
-    /// which <see cref="BaseFallback"/> gives a sensible substitute.
+    /// from arcanum-ce <c>a_name.c</c>. Validated against the shipped game. The "flipped" blend edges
+    /// (2/9/12/13) ship no file of their own — they reuse their canonical-edge partner (8/3/6/7) drawn
+    /// horizontally mirrored (see <see cref="TileArtId.FileEdge"/> / <see cref="TileArtId.IsMirrored"/>); this
+    /// resolves to the canonical file and the renderer flips it. <see cref="BaseFallback"/> covers anything still
+    /// absent.
     /// </summary>
     public sealed class TileArtPathResolver
     {
@@ -33,7 +34,39 @@ namespace Arcanum.Formats.Tiles
             string name2 = _table.Lookup(TileArtId.Num2(artId), type, TileArtId.Flippable2(artId));
             if (name1 == null || name2 == null) return null;
 
-            return Build(name1, name2, TileArtId.Edge(artId), TileArtId.Variant(artId));
+            return Build(name1, name2, TileArtId.FileEdge(artId), TileArtId.Variant(artId));
+        }
+
+        /// <summary>
+        /// Like <see cref="Resolve"/> but verifies the file is present (via <paramref name="exists"/>), and when the
+        /// stored variant suffix is missing it tries the blend's other variants — mirroring how the engine's
+        /// <c>tilevariant.dat</c> cache picks an existing variant rather than dropping to a plain base tile. Returns
+        /// null if no variant of the blend exists (the caller can then fall to <see cref="BaseFallback"/>).
+        /// <paramref name="onMissing"/>, if set, is called with <c>(name1, name2, edge)</c> for a blend that had no
+        /// existing variant — for measuring the remaining gap (the cases that may need intermediate-terrain routing).
+        /// </summary>
+        public string ResolveExisting(uint artId, Func<string, bool> exists, Action<string, string, int> onMissing = null)
+        {
+            if (exists == null || !TileArtId.IsTile(artId)) return Resolve(artId);
+
+            int type = TileArtId.TileType(artId);
+            string name1 = _table.Lookup(TileArtId.Num1(artId), type, TileArtId.Flippable1(artId));
+            string name2 = _table.Lookup(TileArtId.Num2(artId), type, TileArtId.Flippable2(artId));
+            if (name1 == null || name2 == null) return null;
+
+            int edge = TileArtId.FileEdge(artId);
+
+            // Stored variant first, then every other suffix (a..h) for the same blend.
+            string canonical = Build(name1, name2, edge, TileArtId.Variant(artId));
+            if (exists(canonical)) return canonical;
+            for (int v = 0; v < 8; v++)
+            {
+                string p = Build(name1, name2, edge, v);
+                if (exists(p)) return p;
+            }
+
+            onMissing?.Invoke(name1, name2, edge); // a blend with no existing variant — the remaining gap
+            return null;
         }
 
         /// <summary>

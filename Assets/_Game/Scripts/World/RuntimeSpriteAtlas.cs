@@ -27,8 +27,6 @@ namespace Arcanum.Runtime.Art
         private readonly List<bool> _dirty = new List<bool>();
         private int _x, _y, _shelfH; // shelf-packing cursor on the current (last) page
 
-        public int PageCount => _pages.Count;
-
         /// <summary>Packs a frame's pixels into a page and returns a sprite over that sub-rect, or null if the
         /// frame is too big to atlas (caller should fall back to a standalone texture).</summary>
         public Sprite Add(Color32[] pixels, int w, int h, Vector2 pivot, float ppu)

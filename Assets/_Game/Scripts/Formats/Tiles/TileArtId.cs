@@ -44,5 +44,18 @@ namespace Arcanum.Formats.Tiles
             if (EdgeFlipped[edge] == EdgeNormal[edge] && (Flags(aid) & 1) != 0) v += 8;
             return v;
         }
+
+        /// <summary>The edge whose tile file actually exists — the canonical (non-mirrored) edge. The four
+        /// "flipped" edges (2, 9, 12, 13) ship no file of their own; they reuse their canonical partner
+        /// (8, 3, 6, 7) drawn horizontally mirrored. For all other edges this is the edge itself.</summary>
+        public static int FileEdge(uint aid) => EdgeNormal[Edge(aid)];
+
+        /// <summary>True when the tile must be drawn horizontally mirrored — its display edge has no own file,
+        /// so it reuses the <see cref="FileEdge"/> partner flipped (the engine mirrors it at draw time).</summary>
+        public static bool IsMirrored(uint aid)
+        {
+            int e = Edge(aid);
+            return EdgeNormal[e] != e;
+        }
     }
 }

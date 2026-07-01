@@ -50,6 +50,45 @@ namespace Arcanum.Formats.Tests
         }
 
         [Test]
+        public void FileEdgeMapsFlipEdgesToCanonicalPartner()
+        {
+            // The four "flipped" edges ship no file of their own — they map to their mirror partner (which does),
+            // and are flagged as mirrored so the renderer draws that partner horizontally flipped.
+            (int flip, int canonical)[] pairs = { (2, 8), (9, 3), (12, 6), (13, 7) };
+            foreach ((int flip, int canonical) in pairs)
+            {
+                uint id = Pack(0, 0, 1, 0, 0, edge: flip, variant: 0, flags: 0);
+                Assert.That(TileArtId.Edge(id), Is.EqualTo(flip));
+                Assert.That(TileArtId.FileEdge(id), Is.EqualTo(canonical), $"edge {flip} resolves to file edge {canonical}");
+                Assert.That(TileArtId.IsMirrored(id), Is.True, $"edge {flip} is mirrored");
+            }
+        }
+
+        [Test]
+        public void FileEdgeIsIdentityForCanonicalEdges()
+        {
+            // Every edge that ships its own file is left unchanged and not mirrored — so the tiles that already
+            // resolved keep resolving exactly as before.
+            foreach (int e in new[] { 0, 1, 3, 4, 5, 6, 7, 8, 10, 11, 14, 15 })
+            {
+                uint id = Pack(0, 0, 1, 0, 0, edge: e, variant: 0, flags: 0);
+                Assert.That(TileArtId.FileEdge(id), Is.EqualTo(e), $"edge {e} unchanged");
+                Assert.That(TileArtId.IsMirrored(id), Is.False, $"edge {e} not mirrored");
+            }
+        }
+
+        [Test]
+        public void FlippedAsymmetricEdgeResolvesToMirroredCanonicalFile()
+        {
+            // The realistic path a sector stores: raw edge 8 with the flip flag → display edge 2 (EdgeFlipped[8]),
+            // which maps back to file edge 8 drawn mirrored.
+            uint id = Pack(0, 0, 1, 0, 0, edge: 8, variant: 0, flags: 1);
+            Assert.That(TileArtId.Edge(id), Is.EqualTo(2), "raw 8 flipped → display edge 2");
+            Assert.That(TileArtId.FileEdge(id), Is.EqualTo(8), "file edge is the canonical partner");
+            Assert.That(TileArtId.IsMirrored(id), Is.True);
+        }
+
+        [Test]
         public void NonTileIsRejected()
         {
             uint wall = 2u << 28; // art type 2 != TILE

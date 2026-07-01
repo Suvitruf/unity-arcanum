@@ -1,9 +1,8 @@
 {
-    "name": "Arcanum.Runtime",
-    "rootNamespace": "Arcanum.Runtime",
+    "name": "Arcanum.World",
+    "rootNamespace": "Arcanum.World",
     "references": [
-        "Arcanum.Formats",
-        "Arcanum.World"
+        "Arcanum.Formats"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
